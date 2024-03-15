@@ -1,4 +1,4 @@
-import { Like, MediaItem, UserWithNoPassword, Comment } from './DBTypes';
+import {Like, MediaItem, UserWithNoPassword, Comment} from './DBTypes';
 
 type MessageResponse = {
   message: string;
@@ -24,7 +24,7 @@ type UserResponse = MessageResponse & {
 };
 
 type UserDeleteResponse = MessageResponse & {
-  user: { user_id: number };
+  user: {user_id: number};
 };
 
 // for upload server
@@ -53,5 +53,5 @@ export type {
   UserResponse,
   UserDeleteResponse,
   LikeResponse,
-  CommentResponse
+  CommentResponse,
 };
