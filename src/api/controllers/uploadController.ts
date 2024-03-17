@@ -4,19 +4,21 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import {FileInfo, TokenContent} from '../../../hybrid-types/DBTypes';
 import {MessageResponse} from '../../../hybrid-types/MessageTypes';
-import AWS from 'aws-sdk';
+//import AWS from 'aws-sdk';
 import {v4 as uuidv4} from 'uuid';
 
 // Configure AWS with your access and secret key.
-const {ACCESS_KEY_ID, SECRET_ACCESS_KEY, BUCKET_NAME} = process.env; // These should be set in your .env file
-
+//const {ACCESS_KEY_ID, SECRET_ACCESS_KEY, BUCKET_NAME} = process.env; // These should be set in your .env file
+/*
 AWS.config.update({
   accessKeyId: ACCESS_KEY_ID,
   secretAccessKey: SECRET_ACCESS_KEY,
 });
+*/
 
-const s3 = new AWS.S3();
-/* OLD FILE UPLOAD FUNCTION
+//const s3 = new AWS.S3();
+
+// LOCAL FILE BASED UPLOAD FUNCTION
 const uploadFile = async (
   req: Request,
   res: Response<{}, {user: TokenContent}>,
@@ -29,6 +31,7 @@ const uploadFile = async (
       return;
     }
 
+    /*
     const fileInfo: FileInfo = {
       filename: req.file.filename, // filename is used as random string because multer creates a random string for filename
       user_id: res.locals.user.user_id, // user_id is used to verify if user is owner of file
@@ -39,6 +42,10 @@ const uploadFile = async (
       fileInfo,
       process.env.JWT_SECRET as string
     )}.${req.file.originalname.split('.').pop()}`;
+      */
+
+    // Generate a new filename for this file
+    const filename = uuidv4() + '.' + req.file.originalname.split('.').pop();
 
     // change file name of req.file.path to filename
     fs.renameSync(req.file.path, `${req.file.destination}/${filename}`);
@@ -63,7 +70,8 @@ const uploadFile = async (
     next(new CustomError((error as Error).message, 400));
   }
 };
-*/
+
+/* AWS FILE UPLOAD FUNCTION
 const uploadFile = async (
   req: Request,
   res: Response<{}, {user: TokenContent}>,
@@ -109,6 +117,7 @@ const uploadFile = async (
     next(error);
   }
 };
+*/
 
 const deleteFile = async (
   req: Request<{filename: string}>,
