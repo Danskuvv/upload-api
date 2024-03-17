@@ -4,7 +4,19 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import {FileInfo, TokenContent} from '../../../hybrid-types/DBTypes';
 import {MessageResponse} from '../../../hybrid-types/MessageTypes';
+import AWS from 'aws-sdk';
+import {v4 as uuidv4} from 'uuid';
 
+// Configure AWS with your access and secret key.
+const {ACCESS_KEY_ID, SECRET_ACCESS_KEY, BUCKET_NAME} = process.env; // These should be set in your .env file
+
+AWS.config.update({
+  accessKeyId: ACCESS_KEY_ID,
+  secretAccessKey: SECRET_ACCESS_KEY,
+});
+
+const s3 = new AWS.S3();
+/* OLD FILE UPLOAD FUNCTION
 const uploadFile = async (
   req: Request,
   res: Response<{}, {user: TokenContent}>,
@@ -49,6 +61,52 @@ const uploadFile = async (
     res.json(response);
   } catch (error) {
     next(new CustomError((error as Error).message, 400));
+  }
+};
+*/
+const uploadFile = async (
+  req: Request,
+  res: Response<{}, {user: TokenContent}>,
+  next: NextFunction
+) => {
+  try {
+    if (!req.file) {
+      const err = new CustomError('file not valid', 400);
+      next(err);
+      return;
+    }
+
+    if (!BUCKET_NAME) {
+      throw new Error('Bucket name is not defined');
+    }
+
+    // Generate a new filename for this file
+    const newFilename = uuidv4() + '.' + req.file.originalname.split('.').pop();
+
+    // Set up parameters for S3 upload
+    const uploadParams = {
+      Bucket: BUCKET_NAME,
+      Key: newFilename,
+      Body: req.file.buffer,
+    };
+
+    // Upload file to S3
+    s3.upload(
+      uploadParams,
+      (err: Error, data: AWS.S3.ManagedUpload.SendData) => {
+        if (err) {
+          console.log('Error', err);
+        }
+        if (data) {
+          console.log('Upload Success', data.Location);
+
+          // Send response to client with URL of uploaded file
+          res.json({fileUrl: data.Location});
+        }
+      }
+    );
+  } catch (error) {
+    next(error);
   }
 };
 
