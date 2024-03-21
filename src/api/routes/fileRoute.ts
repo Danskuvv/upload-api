@@ -1,9 +1,13 @@
 import express, {Request} from 'express';
-import {deleteFile, uploadFile} from '../controllers/uploadController';
+import {
+  deleteFile,
+  uploadFile,
+  uploadMiddleware,
+} from '../controllers/uploadController';
 import multer, {FileFilterCallback} from 'multer';
 import {authenticate, makeThumbnail} from '../../middlewares';
 
-const fileFilter = (
+export const fileFilter = (
   request: Request,
   file: Express.Multer.File,
   cb: FileFilterCallback
@@ -14,14 +18,21 @@ const fileFilter = (
     cb(null, false);
   }
 };
-const upload = multer({dest: './uploads/', fileFilter});
+// Multer for local file storage thing
+//const upload = multer({dest: './uploads/', fileFilter});
+
+//Multer for aws s3 upload
+//const upload = multer({storage: multer.memoryStorage(), fileFilter});
 const router = express.Router();
 
 // TODO: validation
 
-router
-  .route('/upload')
-  .post(authenticate, upload.single('file'), makeThumbnail, uploadFile);
+router.route('/upload').post(
+  authenticate,
+  uploadMiddleware.single('file'),
+  //makeThumbnail,
+  uploadFile
+);
 
 router.route('/delete/:filename').delete(authenticate, deleteFile);
 

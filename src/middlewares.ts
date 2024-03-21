@@ -85,7 +85,13 @@ const makeThumbnail = async (
     await getVideoThumbnail(src);
     next();
   } catch (error) {
-    next(new CustomError('Thumbnail not created', 500));
+    let errorMessage = 'Unknown error';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else {
+      errorMessage = String(error);
+    }
+    next(new CustomError('Thumbnail not created: ' + errorMessage, 500));
   }
 };
 
