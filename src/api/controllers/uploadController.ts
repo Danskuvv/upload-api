@@ -9,6 +9,7 @@ import {DeleteObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import {fileFilter} from '../routes/fileRoute';
+import {MulterFile} from '../../../types';
 //import {v4 as uuidv4} from 'uuid';
 
 // Configure AWS with your access and secret key.
@@ -106,12 +107,14 @@ const uploadFile = async (
       return;
     }
 
+    const file = req.file as unknown as MulterFile;
+
     const response = {
       message: 'file uploaded',
       data: {
-        filename: req.file.key,
-        media_type: req.file.mimetype,
-        filesize: req.file.size,
+        filename: file.key,
+        media_type: file.mimetype,
+        filesize: file.size,
       },
     };
     res.json(response);
