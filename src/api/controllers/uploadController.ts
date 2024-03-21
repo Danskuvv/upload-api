@@ -242,6 +242,11 @@ const deleteFile = async (
       await s3.send(new DeleteObjectCommand(deleteParams));
     } catch (error) {
       console.error('Error deleting file:', error);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error('An error occurred while deleting the file');
+      }
     }
     const response: MessageResponse = {
       message: 'File deleted',
