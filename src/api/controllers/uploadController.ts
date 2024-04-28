@@ -203,7 +203,7 @@ const deleteFile = async (
       next(err);
       return;
     }
-
+    /*
     // check if not admin
     if (res.locals.user.level_name !== 'Admin') {
       // get filename without extension for jwt verification
@@ -232,7 +232,7 @@ const deleteFile = async (
         return;
       }
     }
-
+*/
     // delete from S3 bucket
     const deleteParams = {
       Bucket: process.env.BUCKET_NAME as string,
